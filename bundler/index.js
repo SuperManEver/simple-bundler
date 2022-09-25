@@ -21,13 +21,13 @@ function build({ entryFile, outputFolder }) {
 }
 
 function createDependencyGraph(entryFile) {
-  const rootModule = createModule(entryFile);
+  const rootModule = Module.createModule(entryFile);
   return rootModule;
 }
 
-function createModule(filePath) {
-  return new Module(filePath);
-}
+// function createModule(filePath) {
+//   return new Module(filePath);
+// }
 
 const entryPath = path.resolve(__dirname, "..", "src", "index.js");
 const outDir = path.resolve(__dirname, "..", "build");
