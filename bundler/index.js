@@ -6,10 +6,9 @@ function build({ entryFile, outputFolder }) {
   // build dependency graph
   const graph = createDependencyGraph(entryFile);
 
-  return;
-
   // bundle the asset
   const outputFiles = bundle(graph);
+
   // write to output folder
   for (const outputFile of outputFiles) {
     fs.writeFileSync(
@@ -25,9 +24,37 @@ function createDependencyGraph(entryFile) {
   return rootModule;
 }
 
-// function createModule(filePath) {
-//   return new Module(filePath);
-// }
+function bundle(graph) {
+  const modules = collectModules(graph);
+  const moduleMap = toModuleMap(modules);
+  console.log(moduleMap);
+
+  return [];
+}
+
+function collectModules(graph) {
+  const modules = [];
+  collect(graph, modules);
+  return modules;
+
+  function collect(module, modules) {
+    modules.push(module);
+    module.dependencies.forEach((dependency) => collect(dependency, modules));
+  }
+}
+
+function toModuleMap(modules) {
+  let moduleMap = "";
+  moduleMap += "{";
+
+  for (const module of modules) {
+    moduleMap += `"${module.filePath}": `;
+    moduleMap += `function(exports, require) { ${module.content} },`;
+  }
+
+  moduleMap += "}";
+  return moduleMap;
+}
 
 const entryPath = path.resolve(__dirname, "..", "src", "index.js");
 const outDir = path.resolve(__dirname, "..", "build");
