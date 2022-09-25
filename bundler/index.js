@@ -48,7 +48,7 @@ function toModuleMap(modules) {
   moduleMap += "{";
 
   for (const module of modules) {
-    moduleMap += `"${module.filePath}": `;
+    module.transformModuleInterface();
     moduleMap += `function(exports, require) { ${module.content} },`;
   }
 
