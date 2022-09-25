@@ -1,0 +1,7 @@
+{
+  "name": "simple-bundler",
+  "version": "0.0.1",
+  "description": "simple bundler for learning purposes. NOT PRODUCTION READY!!!",
+  "author": "Nik Luparev",
+  "license": "MIT"
+}
