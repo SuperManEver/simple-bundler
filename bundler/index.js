@@ -9,6 +9,8 @@ function build({ entryFile, outputFolder }) {
   // bundle the asset
   const outputFiles = bundle(graph);
 
+  return;
+
   // write to output folder
   for (const outputFile of outputFiles) {
     fs.writeFileSync(
@@ -26,10 +28,12 @@ function createDependencyGraph(entryFile) {
 
 function bundle(graph) {
   const modules = collectModules(graph);
+
   const moduleMap = toModuleMap(modules);
+
   console.log(moduleMap);
 
-  return [];
+  return [{ name: "bundle.js", content: moduleMap }];
 }
 
 function collectModules(graph) {
@@ -45,14 +49,17 @@ function collectModules(graph) {
 
 function toModuleMap(modules) {
   let moduleMap = "";
-  moduleMap += "{";
+  moduleMap = {};
 
   for (const module of modules) {
+    console.log(module.fileName);
+
     module.transformModuleInterface();
-    moduleMap += `function(exports, require) { ${module.content} },`;
+    moduleMap[
+      module.fileName
+    ] = `function(exports, require) { ${module.content} },`;
   }
 
-  moduleMap += "}";
   return moduleMap;
 }
 

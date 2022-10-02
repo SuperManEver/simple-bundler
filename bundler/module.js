@@ -122,6 +122,12 @@ class Module {
     this.ast = ast;
     this.content = code;
   }
+
+  get fileName() {
+    const splitted = this.filePath.split("/");
+
+    return splitted[splitted.length - 1];
+  }
 }
 
 module.exports = Module;
