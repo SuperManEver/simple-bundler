@@ -10,8 +10,6 @@ function build({ entryFile, outputFolder }) {
   // bundle the asset
   const outputFiles = bundle(graph);
 
-  return;
-
   // write to output folder
   for (const outputFile of outputFiles) {
     fs.writeFileSync(
@@ -32,7 +30,7 @@ function bundle(graph) {
   const moduleMap = toModuleMap(modules);
   const moduleCode = addRuntime(moduleMap, modules[0].filePath);
 
-  return [{ name: "bundle.js", content: moduleMap }];
+  return [{ name: "bundle.js", content: moduleCode }];
 }
 
 function addRuntime(moduleMap, entryPoint) {
@@ -78,36 +76,16 @@ function collectModules(graph) {
   }
 }
 
-/*
-his implementation
-
 function toModuleMap(modules) {
   let moduleMap = "";
   moduleMap += "{";
 
   for (const module of modules) {
-    moduleMap += `"${module.filePath}": `;
-    moduleMap += `function(exports, require) { ${module.content} },`;
+    module.transformModuleInterface();
+    moduleMap += `"${module.filePath}": function(exports, require) { ${module.content} },`;
   }
 
   moduleMap += "}";
-  return moduleMap;
-}
-*/
-
-function toModuleMap(modules) {
-  let moduleMap = "";
-  moduleMap = {};
-
-  for (const module of modules) {
-    console.log(module.fileName);
-
-    module.transformModuleInterface();
-    moduleMap[
-      module.fileName
-    ] = `function(exports, require) { ${module.content} },`;
-  }
-
   return moduleMap;
 }
 
