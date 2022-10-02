@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Module = require("./module");
+const { trim } = require("./utils");
 
 function build({ entryFile, outputFolder }) {
   // build dependency graph
@@ -28,12 +29,42 @@ function createDependencyGraph(entryFile) {
 
 function bundle(graph) {
   const modules = collectModules(graph);
-
   const moduleMap = toModuleMap(modules);
-
-  console.log(moduleMap);
+  const moduleCode = addRuntime(moduleMap, modules[0].filePath);
 
   return [{ name: "bundle.js", content: moduleMap }];
+}
+
+function addRuntime(moduleMap, entryPoint) {
+  const runtimeAsString = `
+  const modules = ${moduleMap};
+  const entry = "${entryPoint}";
+  
+  function webpackStart({ modules, entry }) {
+    const moduleCache = {};
+    const require = moduleName => {
+      // if in cache, return the cached version
+      if (moduleCache[moduleName]) {
+        return moduleCache[moduleName];
+      }
+      const exports = {};
+      // this will prevent infinite "require" loop
+      // from circular dependencies
+      moduleCache[moduleName] = exports;
+  
+      // "require"-ing the module,
+      // exported stuff will assigned to "exports"
+      modules[moduleName](exports, require);
+      return moduleCache[moduleName];
+    };
+  
+    // start the program
+    require(entry);
+  }
+
+  webpackStart({ modules, entry });`;
+
+  return trim(runtimeAsString);
 }
 
 function collectModules(graph) {
@@ -46,6 +77,23 @@ function collectModules(graph) {
     module.dependencies.forEach((dependency) => collect(dependency, modules));
   }
 }
+
+/*
+his implementation
+
+function toModuleMap(modules) {
+  let moduleMap = "";
+  moduleMap += "{";
+
+  for (const module of modules) {
+    moduleMap += `"${module.filePath}": `;
+    moduleMap += `function(exports, require) { ${module.content} },`;
+  }
+
+  moduleMap += "}";
+  return moduleMap;
+}
+*/
 
 function toModuleMap(modules) {
   let moduleMap = "";
