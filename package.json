@@ -5,7 +5,8 @@
   "author": "Nik Luparev",
   "license": "MIT",
   "scripts": {
-    "build": "node ./bundler/index.js"
+    "build": "webpack"
+
   },
   "dependencies": {
     "@babel/core": "^7.19.1"
